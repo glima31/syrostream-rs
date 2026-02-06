@@ -18,3 +18,6 @@ license.workspace = true
 [dependencies]
 syro-sys = { path = "syro-sys" }
 thiserror = "2.0.18"
+
+[dev-dependencies]
+hound = "3.5.1"

@@ -86,7 +86,12 @@ fn prepare_syrodata(
 
 #[cfg(test)]
 mod tests {
+    use hound::WavReader;
+
     use super::*;
+
+    const REFERENCE_SRC_AUDIO_WAV: &str = "testdata/kick.wav";
+    const REFERENCE_OUTPUT_WAV: &str = "testdata/kick_syrostream_slot0.wav";
 
     #[test]
     fn prepare_syrodata_valid_slots_returns_ok() {
@@ -100,5 +105,24 @@ mod tests {
     fn prepare_syrodata_invalid_slot_returns_err() {
         let result = prepare_syrodata(&[1, 2, 3], NonZeroU32::new(44100).unwrap(), 100);
         assert!(matches!(result.unwrap_err(), SyroError::InvalidSlot(slot) if slot == 100));
+    }
+
+    #[test]
+    fn encode_result_matches_reference_wav() {
+        let input_wav = WavReader::open(REFERENCE_SRC_AUDIO_WAV).unwrap();
+        let output_wav = WavReader::open(REFERENCE_OUTPUT_WAV).unwrap();
+
+        let input_wav_spec = input_wav.spec();
+        let input_audio: Vec<i16> = input_wav.into_samples().map(|s| s.unwrap()).collect();
+
+        let expected_syrostream: Vec<i16> = output_wav.into_samples().map(|s| s.unwrap()).collect();
+        let result = encode(
+            &input_audio,
+            NonZeroU32::new(input_wav_spec.sample_rate).unwrap(),
+            0,
+        )
+        .unwrap();
+
+        assert_eq!(result, expected_syrostream);
     }
 }
