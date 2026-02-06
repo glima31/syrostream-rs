@@ -23,7 +23,8 @@ pub fn encode(
     src_rate: NonZeroU32,
     dst_slot: u32,
 ) -> Result<Vec<i16>, SyroError> {
-    let mut syro_data = prepare_syrodata(src_audio, src_rate, dst_slot)?;
+    let (mut syro_data, _bytes) = prepare_syrodata(src_audio, src_rate, dst_slot)?;
+
     let mut handle: SyroHandle = std::ptr::null_mut();
     let mut num_frames: u32 = 0;
 
@@ -63,7 +64,7 @@ fn prepare_syrodata(
     src_audio: &[i16],
     src_rate: NonZeroU32,
     dst_slot: u32,
-) -> Result<SyroData, SyroError> {
+) -> Result<(SyroData, Vec<u8>), SyroError> {
     if dst_slot > MAX_SLOT {
         return Err(SyroError::InvalidSlot(dst_slot));
     }
@@ -73,7 +74,7 @@ fn prepare_syrodata(
         .flat_map(|&sample| sample.to_le_bytes())
         .collect();
 
-    Ok(SyroData {
+    let syro_data = SyroData {
         DataType: SyroDataType_DataType_Sample_Compress,
         pData: bytes.as_ptr() as *mut u8,
         Number: dst_slot,
@@ -81,7 +82,9 @@ fn prepare_syrodata(
         Quality: COMPRESSION_QUALITY,
         Fs: src_rate.get(),
         SampleEndian: Endian_LittleEndian,
-    })
+    };
+
+    Ok((syro_data, bytes))
 }
 
 #[cfg(test)]
@@ -123,15 +126,21 @@ mod tests {
         )
         .unwrap();
 
-        let len_e = expected_syrostream.len();
-        let len_r = result.len();
+        let diffs: usize = result
+            .iter()
+            .zip(expected_syrostream.iter())
+            .filter(|(a, b)| a != b)
+            .count();
 
-        println!("First 20 expected: {:?}", &expected_syrostream[..20]);
-        println!("First 20 result:   {:?}", &result[..20]);
-        println!(
-            "Last 20 expected:  {:?}",
-            &expected_syrostream[len_e - 20..]
-        );
-        println!("Last 20 result:    {:?}", &result[len_r - 20..]);
+        println!("Total differences: {diffs} / {}", result.len());
+
+        let max_diff: i16 = result
+            .iter()
+            .zip(expected_syrostream.iter())
+            .map(|(a, b)| (a - b).abs())
+            .max()
+            .unwrap_or(0);
+
+        println!("Max sample difference: {max_diff}");
     }
 }
