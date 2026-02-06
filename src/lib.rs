@@ -3,6 +3,8 @@ use thiserror::Error;
 
 use syro_sys::*;
 
+pub const OUTPUT_SAMPLE_RATE: u32 = 44_100;
+
 pub const MAX_SLOT: u32 = 99;
 
 const COMPRESSION_QUALITY: u32 = 16;
@@ -22,14 +24,45 @@ pub enum SyroError {
     VolcaSampleEnd(SyroStatus),
 }
 
-// pub fn encode(
-// src_audio: &[i16],
-// src_rate: NonZeroU32,
-// dst_slot: u32,
-// ) -> Result<Vec<i16, SyroError>> {
-// Ok(())
-// }
-//
+pub fn encode(
+    src_audio: &[i16],
+    src_rate: NonZeroU32,
+    dst_slot: u32,
+) -> Result<Vec<i16>, SyroError> {
+    let mut syro_data = prepare_syrodata(src_audio, src_rate, dst_slot)?;
+    let mut handle: SyroHandle = std::ptr::null_mut();
+    let mut num_frames: u32 = 0;
+
+    let status =
+        unsafe { SyroVolcaSample_Start(&mut handle, &mut syro_data, 1, 0, &mut num_frames) };
+
+    if status != SyroStatus_Status_Success {
+        return Err(SyroError::VolcaSampleStart(status));
+    }
+
+    let mut output: Vec<i16> = Vec::with_capacity((num_frames * 2) as usize);
+
+    for _ in 0..num_frames {
+        let mut left: i16 = 0;
+        let mut right: i16 = 0;
+
+        let status = unsafe { SyroVolcaSample_GetSample(handle, &mut left, &mut right) };
+        if status != SyroStatus_Status_Success {
+            return Err(SyroError::VolcaSampleGetSample(status));
+        }
+
+        output.push(left);
+        output.push(right);
+    }
+
+    let status = unsafe { SyroVolcaSample_End(handle) };
+    if status != SyroStatus_Status_Success {
+        return Err(SyroError::VolcaSampleEnd(status));
+    }
+
+    Ok(output)
+}
+
 fn prepare_syrodata(
     src_audio: &[i16],
     src_rate: NonZeroU32,
