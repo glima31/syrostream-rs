@@ -14,14 +14,8 @@ pub enum SyroError {
     #[error("Invalid Volca Sample slot {0}, must be 0-{MAX_SLOT}")]
     InvalidSlot(u32),
 
-    #[error("SyroVolcaSample_Start failed with status {0}")]
-    VolcaSampleStart(SyroStatus),
-
-    #[error("SyroVolcaSample_GetSample failed with status {0}")]
-    VolcaSampleGetSample(SyroStatus),
-
-    #[error("SyroVolcaSample_End failed with status {0}")]
-    VolcaSampleEnd(SyroStatus),
+    #[error("{0} failed with status {1}")]
+    VolcaSampleOp(&'static str, SyroStatus),
 }
 
 pub fn encode(
@@ -37,18 +31,20 @@ pub fn encode(
         unsafe { SyroVolcaSample_Start(&mut handle, &mut syro_data, 1, 0, &mut num_frames) };
 
     if status != SyroStatus_Status_Success {
-        return Err(SyroError::VolcaSampleStart(status));
+        return Err(SyroError::VolcaSampleOp("SyroVolcaSample_Start", status));
     }
 
     let mut output: Vec<i16> = Vec::with_capacity((num_frames * 2) as usize);
-
     for _ in 0..num_frames {
         let mut left: i16 = 0;
         let mut right: i16 = 0;
 
         let status = unsafe { SyroVolcaSample_GetSample(handle, &mut left, &mut right) };
         if status != SyroStatus_Status_Success {
-            return Err(SyroError::VolcaSampleGetSample(status));
+            return Err(SyroError::VolcaSampleOp(
+                "SyroVolcaSample_GetSample",
+                status,
+            ));
         }
 
         output.push(left);
@@ -57,7 +53,7 @@ pub fn encode(
 
     let status = unsafe { SyroVolcaSample_End(handle) };
     if status != SyroStatus_Status_Success {
-        return Err(SyroError::VolcaSampleEnd(status));
+        return Err(SyroError::VolcaSampleOp("SyroVolcaSample_End", status));
     }
 
     Ok(output)
