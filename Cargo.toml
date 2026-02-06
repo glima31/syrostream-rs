@@ -16,3 +16,5 @@ authors.workspace = true
 license.workspace = true
 
 [dependencies]
+syro-sys = { path = "syro-sys" }
+thiserror = "2.0.18"

@@ -1,14 +1,14 @@
-pub fn add(left: u64, right: u64) -> u64 {
-    left + right
-}
+use syro_sys::*;
+use thiserror::Error;
 
-#[cfg(test)]
-mod tests {
-    use super::*;
+#[derive(Clone, Debug, Error)]
+pub enum SyroError {
+    #[error("SyroVolcaSample_Start failed with status {0}")]
+    VolcaSampleStart(SyroStatus),
 
-    #[test]
-    fn it_works() {
-        let result = add(2, 2);
-        assert_eq!(result, 4);
-    }
+    #[error("SyroVolcaSample_GetSample failed with status {0}")]
+    VolcaSampleGetSample(SyroStatus),
+
+    #[error("SyroVolcaSample_End failed with status {0}")]
+    VolcaSampleEnd(SyroStatus),
 }
