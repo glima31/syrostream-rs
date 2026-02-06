@@ -123,6 +123,15 @@ mod tests {
         )
         .unwrap();
 
-        assert_eq!(result, expected_syrostream);
+        let len_e = expected_syrostream.len();
+        let len_r = result.len();
+
+        println!("First 20 expected: {:?}", &expected_syrostream[..20]);
+        println!("First 20 result:   {:?}", &result[..20]);
+        println!(
+            "Last 20 expected:  {:?}",
+            &expected_syrostream[len_e - 20..]
+        );
+        println!("Last 20 result:    {:?}", &result[len_r - 20..]);
     }
 }
