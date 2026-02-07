@@ -18,6 +18,7 @@ pub enum SyroError {
     #[error("Invalid Volca Sample slot {0}, must be 0-{MAX_SLOT}")]
     InvalidSlot(u32),
 
+    /// A Syro SDK call failed
     #[error("{0} failed with status {1}")]
     VolcaSampleOp(&'static str, SyroStatus),
 }
