@@ -126,21 +126,6 @@ mod tests {
         )
         .unwrap();
 
-        let diffs: usize = result
-            .iter()
-            .zip(expected_syrostream.iter())
-            .filter(|(a, b)| a != b)
-            .count();
-
-        println!("Total differences: {diffs} / {}", result.len());
-
-        let max_diff: i16 = result
-            .iter()
-            .zip(expected_syrostream.iter())
-            .map(|(a, b)| (a - b).abs())
-            .max()
-            .unwrap_or(0);
-
-        println!("Max sample difference: {max_diff}");
+        assert_eq!(result, expected_syrostream);
     }
 }
