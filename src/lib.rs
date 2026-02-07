@@ -3,21 +3,43 @@ use thiserror::Error;
 
 use syro_sys::*;
 
+/// Sample rate of the encoded Syrostream (always 44.1 kHz)
 pub const OUTPUT_SAMPLE_RATE: u32 = 44_100;
 
+/// Maximum valid Volca Sample slot index (0–99)
 pub const MAX_SLOT: u32 = 99;
 
 const COMPRESSION_QUALITY: u32 = 16;
 
+/// Errors that can occur during the enconding process
 #[derive(Clone, Debug, Error)]
 pub enum SyroError {
+    /// The provided Volca Sample slot exceeds 99
     #[error("Invalid Volca Sample slot {0}, must be 0-{MAX_SLOT}")]
     InvalidSlot(u32),
 
+    /// A Syro SDK call failed
     #[error("{0} failed with status {1}")]
     VolcaSampleOp(&'static str, SyroStatus),
 }
 
+/// Encodes mono `i16` audio into Syrostream format for a given Volca Sample slot
+///
+/// # Arguments
+///
+/// * `src_audio` - Mono audio samples as signed 16-bit PCM
+/// * `src_rate` - Sample rate of `src_audio`. Note that this doesn't need to match the output rate
+/// * `dst_slot` - Target Volca Sample slot (0–99)
+///
+/// # Returns
+///
+/// Stereo interleaved `i16` samples at 44.1 kHz, ready to be written to a WAV
+/// file and played back into the Volca Sample's SYNC input
+///
+/// # Errors
+///
+/// Returns `SyroError::InvalidSlot` if `dst_slot` exceeds 99 or
+/// `SyroError::VolcaSampleOp` if the underlying SDK call fails
 pub fn encode(
     src_audio: &[i16],
     src_rate: NonZeroU32,

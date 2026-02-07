@@ -30,7 +30,7 @@ use std::num::NonZeroU32;
 
 let src_audio: &[i16] = &[/* ...audio samples... */];
 
-// The sample rate of `src_audio`. The syrostream output sample rate is always 44.1kHz,
+// The sample rate of `src_audio`. The syrostream output sample rate is always 44.1 kHz,
 // but your audio source can be different.
 let src_rate = NonZeroU32::new(22_050).unwrap();
 
@@ -40,7 +40,7 @@ let slot = 0;
 let syro_output = syrostream::encode(src_audio, src_rate, slot).unwrap();
 ```
 
-The output is stereo interleaved `i16` samples at 44,100 Hz, ready to be written to a WAV file and played back into the Volca Sample's SYNC input.
+The output is stereo interleaved `i16` samples at 44.1 kHz, ready to be written to a WAV file and played back into the Volca Sample's SYNC input.
 
 ## Building
 
