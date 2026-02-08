@@ -1,7 +1,7 @@
 # syrostream-rs
 
 [![CI](https://github.com/glima31/syrostream-rs/actions/workflows/ci.yml/badge.svg)](https://github.com/glima31/syrostream-rs/actions/workflows/ci.yml)
-[![MIT license](https://img.shields.io/badge/License-MIT-blue.svg)](https://lbesson.mit-license.org/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://github.com/glima31/syrostream-rs/blob/main/LICENSE)
 
 Simple crate for encoding audio into [Syrostream](https://github.com/korginc/volcasample) format, used to load samples onto the Korg Volca Sample.
 
