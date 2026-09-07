@@ -11,7 +11,7 @@ pub const MAX_SLOT: u32 = 99;
 
 const COMPRESSION_QUALITY: u32 = 16;
 
-/// Errors that can occur during the enconding process
+/// Errors that can occur during the encoding process
 #[derive(Clone, Debug, Error)]
 pub enum SyroError {
     /// The provided Volca Sample slot exceeds 99
