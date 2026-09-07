@@ -7,14 +7,17 @@ Simple crate for encoding audio into [Syrostream](https://github.com/korginc/vol
 
 This crate was initially developed as part of an ongoing project (repo currently private) but I eventually found myself needing it somewhere else, so I decided to extract it into its own repository and make it public.
 
-Please note that this library does **not** aim to expose a complete Rust API for the Syro SDK in its entirety. Instead, i designed it with only the Syrostream encoding functionality in mind.
+Please note that this library does **not** aim to expose a complete Rust API for the Syro SDK in its entirety. Instead, I designed it with only the Syrostream encoding functionality in mind.
 
 ## Workspace
 
+
 This is a Cargo workspace with two crates:
 
-- **syro-sys** — Raw FFI bindings to the [Korg Syro SDK](https://github.com/korginc/volcasample)
-- **syrostream** (root package) — Safe Rust API for encoding audio into Syrostream format
+| crate | |
+|---|---|
+| **syro-sys** | Raw FFI bindings to the [Korg Syro SDK](https://github.com/korginc/volcasample) |
+| **syrostream** (root) | Safe Rust API for encoding audio into Syrostream format |
 
 ## Usage
 
@@ -43,6 +46,9 @@ let syro_output = syrostream::encode(src_audio, src_rate, slot).unwrap();
 The output is stereo interleaved `i16` samples at 44.1 kHz, ready to be written to a WAV file and played back into the Volca Sample's SYNC input.
 
 ## Building
+
+`syro-sys` compiles the Korg SDK's C sources at build time, so building this crate
+requires a C toolchain.
 
 When cloning this repo, make sure you include `--recurse-submodules` in your git command:
 ```sh
